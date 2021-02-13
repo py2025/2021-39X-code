@@ -7,7 +7,15 @@
 
 using namespace okapi;
 
+double getFt(double dist);
+
+double getDegs(double degs);
+
+void startLeft();
+
 void skills();
+
+void skills1();
 
 //void chaseBall();
 
@@ -16,6 +24,8 @@ void tareChassis();
 void collectBall();
 
 void spinLift(int time);
+
+void liftDown(int time);
 
 void spinIntakes(int time);
 
