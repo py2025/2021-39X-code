@@ -70,7 +70,7 @@ extern Imu inertial;
 extern Controller mainController;
 
 //motor enc to ft/deg conversions
-#define SCONVERSION 1301.8806 //ticks per ft
+#define SCONVERSION 1057.7682 //ticks per ft (previously 1301.8806)
 #define TCONVERSION 10.1303 //ticks per degree
 
 /**
