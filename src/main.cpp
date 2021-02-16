@@ -31,7 +31,7 @@ void on_center_button() {
 void initialize() {
 	//vision sensor monitoring task
 	//Task visionMonitor(vMonitor, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "visionMonitor");
-	
+
 	//I actually don't know anymore
 	Task kalmanMonitor(filterHeading, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "kalmanMonitor");
 }
@@ -67,10 +67,8 @@ void competition_initialize() {}
  */
 
 void autonomous() {
-	inertialTurn(90);
-	/*
-	skills();
-	*/
+	//skills1();
+	inertialDrive(2);
 }
 
 /**
@@ -92,6 +90,8 @@ void opcontrol() {
 	liftMotor2.set_brake_mode(E_MOTOR_BRAKE_HOLD);
 	leftIntake.set_brake_mode(E_MOTOR_BRAKE_HOLD);
 	rightIntake.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+	leftDrive.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+	rightDrive.set_brake_mode(E_MOTOR_BRAKE_HOLD);
 
   Task drive(manualChassis, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "drive");
   Task intake(lifting, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "intake");

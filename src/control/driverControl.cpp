@@ -1,4 +1,5 @@
 #include "control/driverControl.hpp"
+#include "control/autoFunc.hpp"
 
 //Motors + Ports
 pros::Motor leftDrive(10);
@@ -9,28 +10,37 @@ pros::Motor leftIntake(2);
 pros::Motor rightIntake(8);
 
 pros::Controller mainController(E_CONTROLLER_MASTER);
-int RightY;
-int LeftY;
+int rightY;
+int leftY;
 int BackRU;
 int BackRD;
 int BackLU;
 int BackLD;
 int x;
 int y;
+int a;
 
 //main drive task
 void manualChassis(void*){
   while(true){
     c::delay(5);
-		RightY = (int) mainController.get_analog(ANALOG_RIGHT_Y);
-    LeftY = (int) mainController.get_analog(ANALOG_LEFT_Y);
+		leftY = (int) mainController.get_analog(ANALOG_RIGHT_Y);
+    rightY = (int) mainController.get_analog(ANALOG_LEFT_Y);
     x = mainController.get_digital(DIGITAL_X);
     y = mainController.get_digital(DIGITAL_Y);
-    chassisManualDrive(RightY, LeftY);
+    a = mainController.get_digital(DIGITAL_A);
+    chassisManualDrive(rightY, leftY);
+    //center descore
     if(x){
       chassisManualDrive(127, 127);
       c::delay(500);
-      chassisManualDrive(-127, 127);
+      chassisManualDrive(-100, -127);
+      c::delay(500);
+      chassisManualDrive(0, 0);
+    }
+    if(y) startLeft();
+    if(a){
+      chassisManualDrive(127, 127);
       c::delay(500);
       chassisManualDrive(0, 0);
     }

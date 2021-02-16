@@ -9,9 +9,8 @@ void intake(int power){
 
 //intake task
 void intakeT(void* param){
-  int time = (int) param;
   intake(127);
-  c::delay(time);
+  c::delay((int) param);
   intake(0);
 }
 
@@ -23,8 +22,14 @@ void lift(int power){
 
 //lift task
 void liftT(void* param){
-  int time = (int) param;
   lift(127);
-  c::delay(time);
+  c::delay((int) param);
+  lift(0);
+}
+
+void liftDelay(void* param){
+  c::delay((int) param);
+  lift(127);
+  c::delay(200);
   lift(0);
 }
