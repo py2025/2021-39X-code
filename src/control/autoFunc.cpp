@@ -5,18 +5,15 @@
 #include "main.h"
 
 //PID constants
-#define K_P 0.7 //1.35
-#define K_I 0.002 //0.0015 //0.001
-#define K_D 0 //2.0 //0.9
+#define K_P 0.9 //1.35
+#define K_I 0.00185 //0.0015 //0.001
+#define K_D 0.43 //2.0 //0.9
 
-double lastError;
-double error;
-static double pwr;
-static double pOut;
-static double iOut;
-static double dOut;
-static double _integral;
-static double _derivative;
+#define K_P1 0.9
+#define K_I1 0
+#define K_D1 0
+
+#define K_P2 0.9
 
 //Kalman constants
 #define R 30.0 //noise covariance
@@ -26,7 +23,6 @@ double K = 0.0; //kalman gain
 double Q = 1.0; //estimated covariances
 double U_hat = 0.0; //estimated state
 static double h;
-static double h0;
 
 //bool flag1 = true;
 
@@ -34,14 +30,14 @@ static double h0;
 auto chassis = ChassisControllerBuilder()
 	.withMotors(-10, 1)
 	// Green gearset, 3.25 in wheel diam, 10.7 in wheel track
-	.withDimensions(AbstractMotor::gearset::green, {{3.25_in, 10.7_in}, imev5GreenTPR})
+	.withDimensions(AbstractMotor::gearset::green, {{3.25_in, 10.94_in}, imev5GreenTPR})
 	.build();
 
 //builds slow chassis controller
 auto slowChassis = ChassisControllerBuilder()
 	.withMotors(-10, 1)
 	// Green gearset, 3.25 in wheel diam, 10.7 in wheel track
-	.withDimensions(AbstractMotor::gearset::green, {{3.25_in, 10.7_in}, imev5GreenTPR})
+	.withDimensions(AbstractMotor::gearset::green, {{3.25_in, 10.94_in}, imev5GreenTPR})
 	.withMaxVelocity(90)
 	.build();
 
@@ -57,6 +53,19 @@ double getDegs(double degs){
   return degs;
 }
 
+//tares motors
+void tare(){
+	leftDrive.tare_position();
+	rightDrive.tare_position();
+}
+
+//brakes motors
+void brake(){
+	leftDrive.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+	rightDrive.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+}
+
+//used in driver control
 void startLeft(){
 	chassis->moveDistance(1_ft);
 	chassis->turnAngle(135_deg);
@@ -99,50 +108,54 @@ void skills(){
 }
 
 void skills1(){
-	chassis->moveDistance(1_ft);
-	chassis->turnAngle(-135_deg);
+	brake();
+	chassis->moveDistance(1.5_ft);
+	chassis->turnAngle(-130_deg);
 	driveTime(750, 127);
 	spinLift(1250);
-	chassis->moveDistance(-1.4_ft);
-	chassis->turnAngle(148_deg);
+	chassis->moveDistance(-1.2_ft);
+	chassis->turnAngle(145_deg); //151
 	driveTime(1000, -127);
+	c::delay(200);
+	driveTime(100, 127);
+	chassis->turnAngle(5_deg);
 	Task intake0(intakeT, (void*)3500, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT);
-	chassis->moveDistance(5.3_ft);
+	chassis->moveDistance(5.2_ft);
 	Task lift0(liftT, (void*) 350, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT);
-	chassis->turnAngle(-85_deg);
-	driveTime(600, 75);
+	chassis->turnAngle(-83_deg);
+	driveTime(600,85);
 	liftDown(350);
 	spinLift(1250);
 	slowChassis->moveDistance(-1_ft);
-	chassis->turnAngle(88_deg);
+	chassis->turnAngle(90_deg);
 	chassis->moveDistance(3_ft);
-	chassis->turnAngle(-80_deg);
+	chassis->turnAngle(-82_deg);
 	Task intake1(intakeT, (void*)2000, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT);
 	Task lift1(liftDelay, (void*)1500, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT);
 	driveTime(750, 127);
 	chassis->moveDistance(-2.5_ft);
-	chassis->turnAngle(50_deg);
+	chassis->turnAngle(51_deg);
 	driveTime(1500, 127);
 	liftDown(200);
 	spinLift(1250);
 	chassis->moveDistance(-1.4_ft);
-	chassis->turnAngle(-125_deg);
-	driveTime(1000, -127);
-	chassis->moveDistance(3_ft);
-	chassis->turnAngle(-84_deg);
+	chassis->turnAngle(-127.81_deg);
+	driveTime(1250, -127);
+	chassis->moveDistance(3.2_ft);
+	chassis->turnAngle(-82_deg);
 	Task intake2(intakeT, (void*)2000, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT);
-	chassis->moveDistance(4.3_ft);
-	chassis->turnAngle(-87_deg);
+	chassis->moveDistance(4_ft);
+	chassis->turnAngle(-100_deg);
 	chassis->moveDistance(3_ft);
 	spinLift(1250);
 	chassis->moveDistance(-0.75_ft);
-	chassis->turnAngle(87_deg);
+	chassis->turnAngle(90_deg);
 	Task intake3(intakeT, (void*)3000, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT);
-	chassis->moveDistance(4.2_ft);
-	chassis->turnAngle(-44_deg);
+	chassis->moveDistance(4.3_ft);
+	chassis->turnAngle(-45_deg);
 	driveTime(750, 127);
 	spinLift(1250);
-	chassis->turnAngle(-88_deg);
+	chassis->turnAngle(-90_deg);
 }
 
 /*
@@ -187,7 +200,7 @@ void liftDown(int time){
 
 //drive (time based)
 void driveTime(int time, int pwr){
-  chassisManualDrive(pwr, pwr);
+  chassisManualDrive(pwr * 0.98, pwr);
   c::delay(time);
   chassisManualDrive(0, 0);
 }
@@ -215,15 +228,15 @@ double calcKalman(double U){
 //turns using filtered imu data with PID loops relative to initial turn
 //parameter in degs, [+] right turn [-] left turn
 void inertialTurn(double target){
-	lastError = 0;
-	error = 0;
-	pwr = 0;
-	pOut = 0;
-	iOut = 0;
-	dOut = 0;
-	_integral = 0;
-	_derivative = 0;
-  h0 = h;
+	double lastError = 0;
+	double error = 0;
+	double _integral = 0;
+	double _derivative = 0;
+  double h0 = h;
+	double pOut = 0;
+	double iOut = 0;
+	double dOut = 0;
+	double pwr = 0;
   while(true){
 	  error = target + h0 - h;
 		std::cout << error << std::endl;
@@ -233,13 +246,87 @@ void inertialTurn(double target){
     iOut = K_I * _integral;
     dOut = K_D * _derivative;
     pwr = pOut + iOut + dOut;
-    chassisManualDrive(-pwr, pwr);
+    chassisManualDrive(pwr, -pwr);
 		//std::cout << error << std::endl;
     lastError = error;
     if(abs(error) <= 0.05){
       chassisManualDrive(0, 0);
+			brake();
       break;
     }
     c::delay(5);
   }
+}
+
+//drive using IMU and motor encoders
+void inertialDrive(double target){
+	double lastError = 0;
+	double errorD = 0;
+	double _integral = 0;
+	double _derivative = 0;
+	double leftPos = 0;
+	double rightPos = 0;
+	double avg = 0;
+	double pwrD = 0;
+
+	double h0 = h;
+	double pwrT = 0;
+	double errorT = 0;
+
+	double errors[2];
+	tare();
+	while(true){
+		leftPos = abs(leftDrive.get_position());
+		rightPos = abs(rightDrive.get_position());
+		avg = -(leftPos + rightPos) / 2;
+		errorD = getFt(target) - avg;
+		_integral += errorD;
+		_derivative = errorD - lastError;
+		pwrD = (K_P1 * errorD) + (K_I1 * _integral) + (K_D1 * _derivative);
+
+		errorT = h0 - h;
+		pwrT = (K_P2 * errorT);
+		chassisManualDrive(pwrD + pwrT, pwrD - pwrT);
+		lastError = errorD;
+		errors[1] = errorD;
+		errors[2] = errorT;
+		std::cout << errors[1] << " + " << errors[2] << std::endl;
+		if(abs(errorD) <= 0.05){
+			chassisManualDrive(0, 0);
+			brake();
+			break;
+		}
+		c::delay(5);
+	}
+}
+
+//main match auton
+void matchAutonL(){
+	chassis->moveDistance(2.5_ft);
+	chassis->turnAngle(-123_deg);
+	driveTime(1000, 80);
+	liftDown(250);
+	spinLift(1000);
+	slowChassis->moveDistance(-2.5_ft);
+	chassis->turnAngle(-45_deg);
+	Task intake(intakeT, (void*)3000, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT);
+	chassis->moveDistance(5_ft);
+	chassis->turnAngle(10_deg);
+	liftDown(250);
+	spinLift(1000);
+}
+
+void matchAutonR(){
+	chassis->moveDistance(2.5_ft);
+	chassis->turnAngle(126_deg);
+	driveTime(1000, 80);
+	liftDown(250);
+	spinLift(1000);
+	slowChassis->moveDistance(-2.5_ft);
+	chassis->turnAngle(62_deg);
+	Task intake(intakeT, (void*)3000, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT);
+	chassis->moveDistance(5_ft);
+	driveTime(500, 80);
+	liftDown(250);
+	spinLift(1000);
 }

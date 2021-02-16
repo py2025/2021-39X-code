@@ -11,6 +11,10 @@ double getFt(double dist);
 
 double getDegs(double degs);
 
+void tare();
+
+void brake();
+
 void startLeft();
 
 void skills();
@@ -36,5 +40,11 @@ void filterHeading(void*);
 double calcKalman(double U);
 
 void inertialTurn(double target);
+
+void inertialDrive(double target);
+
+void matchAutonL();
+
+void matchAutonR();
 
 #endif
