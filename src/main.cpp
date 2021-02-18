@@ -32,7 +32,7 @@ void initialize() {
 	//vision sensor monitoring task
 	//Task visionMonitor(vMonitor, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "visionMonitor");
 
-	//I actually don't know anymore
+	//filters inertial sensor data
 	Task kalmanMonitor(filterHeading, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "kalmanMonitor");
 }
 
@@ -68,7 +68,8 @@ void competition_initialize() {}
 
 void autonomous() {
 	//skills1();
-	inertialDrive(2);
+	inertialDrive(4);
+	spinLift(1000);
 }
 
 /**

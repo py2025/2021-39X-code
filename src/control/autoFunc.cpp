@@ -5,15 +5,17 @@
 #include "main.h"
 
 //PID constants
-#define K_P 0.9 //1.35
-#define K_I 0.00185 //0.0015 //0.001
-#define K_D 0.43 //2.0 //0.9
+#define K_P 0.03 //1.35
+#define K_I 0.0001 //0.0015 //0.001
+#define K_D 0.01 //2.0 //0.9
 
 #define K_P1 0.9
-#define K_I1 0
-#define K_D1 0
+#define K_I1 0.0000005
+#define K_D1 0.016
 
-#define K_P2 0.9
+#define K_P2 2
+#define K_I2 0.002
+#define K_D2 0
 
 //Kalman constants
 #define R 30.0 //noise covariance
@@ -246,10 +248,10 @@ void inertialTurn(double target){
     iOut = K_I * _integral;
     dOut = K_D * _derivative;
     pwr = pOut + iOut + dOut;
-    chassisManualDrive(pwr, -pwr);
+    chassisManualDrive((pwr < 90) ? pwr : 90, (-pwr > -90) ? -pwr : -90);
 		//std::cout << error << std::endl;
     lastError = error;
-    if(abs(error) <= 0.05){
+    if(abs(error) <= 0.02){
       chassisManualDrive(0, 0);
 			brake();
       break;
@@ -272,26 +274,29 @@ void inertialDrive(double target){
 	double h0 = h;
 	double pwrT = 0;
 	double errorT = 0;
+	double _tDerivative = 0;
+	double _tIntegral = 0;
+	double lastErrorT = 0;
 
-	double errors[2];
 	tare();
 	while(true){
 		leftPos = abs(leftDrive.get_position());
 		rightPos = abs(rightDrive.get_position());
-		avg = -(leftPos + rightPos) / 2;
+		avg = (leftPos + rightPos) / 2;
 		errorD = getFt(target) - avg;
 		_integral += errorD;
 		_derivative = errorD - lastError;
 		pwrD = (K_P1 * errorD) + (K_I1 * _integral) + (K_D1 * _derivative);
 
 		errorT = h0 - h;
-		pwrT = (K_P2 * errorT);
+		_tIntegral += errorT;
+		_tDerivative = errorT - lastErrorT;
+		pwrT = (K_P2 * errorT) + (K_I2 * _tIntegral) + (K_D2 * _tDerivative);
+		if(pwrD > 90) pwrD = 90;
 		chassisManualDrive(pwrD + pwrT, pwrD - pwrT);
 		lastError = errorD;
-		errors[1] = errorD;
-		errors[2] = errorT;
-		std::cout << errors[1] << " + " << errors[2] << std::endl;
-		if(abs(errorD) <= 0.05){
+		lastErrorT = errorT;
+		if(abs(errorD) <= 10){
 			chassisManualDrive(0, 0);
 			brake();
 			break;
