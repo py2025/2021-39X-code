@@ -1,26 +1,12 @@
 #include "main.h"
 #include "control/autoFunc.hpp"
+#include "control/autoRoutines.hpp"
+#include "control/driverControl.hpp"
+#include "control/lcd.hpp"
 #include "partsHpp/chassis.hpp"
 #include "partsHpp/liftake.hpp"
-#include "control/driverControl.hpp"
 
-using namespace okapi;
-
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
+using namespace pros;
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -29,6 +15,8 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+	//lcd::initialize();
+
 	//vision sensor monitoring task
 	//Task visionMonitor(vMonitor, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "visionMonitor");
 
@@ -67,9 +55,7 @@ void competition_initialize() {}
  */
 
 void autonomous() {
-	//skills1();
-	inertialDrive(4);
-	spinLift(1000);
+	skills1();
 }
 
 /**
