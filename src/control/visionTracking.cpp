@@ -1,10 +1,11 @@
 #include "control/visionTracking.hpp"
 
 #define RED_BALL 1
-//needs to be tuned
-#define TURN_P 0.7
+#define GOAL 2
 
-/*
+//needs to be tuned
+#define TURN_P 0.7 //0.7
+
 float finalpwr;
 
 float turnBias(){
@@ -34,4 +35,3 @@ void vMonitor(void*){
     }
   }
 }
-*/
