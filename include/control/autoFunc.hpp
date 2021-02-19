@@ -5,8 +5,6 @@
 #include "control/visionTracking.hpp"
 #include "partsHpp/chassis.hpp"
 
-using namespace okapi;
-
 double getFt(double dist);
 
 double getDegs(double degs);
@@ -14,12 +12,6 @@ double getDegs(double degs);
 void tare();
 
 void brake();
-
-void startLeft();
-
-void skills();
-
-void skills1();
 
 //void chaseBall();
 
@@ -43,8 +35,6 @@ void inertialTurn(double target);
 
 void inertialDrive(double target);
 
-void matchAutonL();
-
-void matchAutonR();
+void visionDrive(double target);
 
 #endif
