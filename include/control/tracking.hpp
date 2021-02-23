@@ -3,18 +3,16 @@
 #include "api.h"
 #include "main.h"
 
-double avg;
-double dif;
+void odom(void*);
 
-double dist;
+double get_x();
 
-double dx;
-double dy;
-double dtheta;
+double get_y();
 
-double encX;
-double encY;
-double encHeading;
+double get_heading(double x, double y, bool intake);
 
-void positionTracking(double x, double y, double heading);
+void move_to(double x, double y, bool intake);
+
+void rotate_to(double x, double y);
+
 #endif
