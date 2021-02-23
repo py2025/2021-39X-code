@@ -1,8 +1,6 @@
 #ifndef _AUTOROUTINES_HPP_
 #define _AUTOROUTINES_HPP_
 
-using namespace okapi;
-
 void startLeft();
 
 void skills();
@@ -14,5 +12,7 @@ void startLeft();
 void matchAutonL();
 
 void matchAutonR();
+
+void oneBallR();
 
 #endif
