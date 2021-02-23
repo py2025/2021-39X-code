@@ -2,10 +2,9 @@
 #include "control/visionTracking.hpp"
 #include "partsHpp/chassis.hpp"
 #include "partsHpp/liftake.hpp"
-#include "main.h"
 
 //PID gains for InertialTurn
-#define K_D 0.04 //0.01
+#define K_D 0.04
 
 //PID gains for InertialDrive (driving)
 #define K_P1 0.9
@@ -24,7 +23,6 @@ double P = 0.0; //error covariance
 double K = 0.0; //kalman gain
 double Q = 1.0; //estimated covariances
 double U_hat = 0.0; //estimated state
-static double h;
 
 //continued inertialTurn gains
 static float K_P = 0.8;
@@ -41,6 +39,10 @@ double getFt(double dist){
 double getDegs(double degs){
   degs *= TCONVERSION;
   return degs;
+}
+
+int getTime(){
+  return (int) pros::millis();
 }
 
 //tares motors
@@ -76,9 +78,9 @@ void tareChassis(){
 
 //spin intakes (time based)
 void spinIntakes(int time){
-  intake(127);
+  spin_intake(127);
   c::delay(time);
-  intake(0);
+  spin_intake(0);
 }
 
 //spin lift (time based)
@@ -88,6 +90,7 @@ void spinLift(int time){
   lift(0);
 }
 
+//lowers lift for a certain amount of time
 void liftDown(int time){
 	lift(-127);
 	c::delay(time);
@@ -101,7 +104,7 @@ void driveTime(int time, int pwr){
   chassisManualDrive(0, 0);
 }
 
-//Gets filtered heading from inertial sensor input and kalman filter I guess
+//Gets filtered heading from inertial sensor input and kalman filter
 void filterHeading(void*){
 	//initialize then reset imu
 	pros::Imu inertial(4);
@@ -133,6 +136,7 @@ void inertialTurn(double target){
 	double iOut = 0;
 	double dOut = 0;
 	double pwr = 0;
+
 	if(abs(target) < 90 && abs(target) > 45){
 		K_P = 1.38;
 		K_I = 0.0025;
@@ -148,11 +152,22 @@ void inertialTurn(double target){
 		K_I = 0.00255;
 		tBias = 1.0;
 	}
-	else if(target > 0 && target == 90){
-		K_P = 0.88;
-		K_I = 0.00139;
-		tBias = 1;
+	else if(target == 90){
+		K_P = 0.90;
+		K_I = 0.00143;
+		tBias = 1.0;
 	}
+  else if(target < 0 && target >= -45){
+    K_P = 0.85;
+    K_I = 0.00134;
+    tBias = 0.50;
+  }
+  else if(target == -90){
+    K_P = 0.88;
+		K_I = 0.00139;
+		tBias = 1.0;
+  }
+
   while(true){
 	  error = target + h0 - h;
 		std::cout << error << std::endl;
@@ -163,10 +178,9 @@ void inertialTurn(double target){
     dOut = K_D * _derivative;
     pwr = pOut + iOut + dOut;
 		//slow turn = fun
-		if(pwr > 68) pwr = 68;
-		else if(pwr < -68) pwr = -68;
+		if(pwr > 100) pwr = 100; //previously 68
+		else if(pwr < -100) pwr = -100; //previously -68
     chassisManualDrive(pwr, -pwr);
-		//std::cout << error << std::endl;
     lastError = error;
     if(abs(error) <= tBias){
       chassisManualDrive(0, 0);
@@ -211,8 +225,13 @@ void inertialDrive(double target){
 		_tDerivative = errorT - lastErrorT;
 		pwrT = (K_P2 * errorT) + (K_I2 * _tIntegral) + (K_D2 * _tDerivative);
 		//drive power is limited to allow turn power to have an effect
-		if(pwrD > 90) pwrD = 90;
-		else if(pwrD < -90) pwrD = -90; //OOOOH maybe switch the power limit to variable, perhaps 127 - turn power?
+		if(pwrD > (127 - abs(pwrT))) pwrD = 127 - abs(pwrT);
+		else if(pwrD < (-127 + abs(pwrT))) pwrD = -127 + abs(pwrT);
+    //if above conditional doesn't work,
+    /*
+    if(pwrD > 100) pwrD = 100; //used to limit to 90
+    else if(pwrD < -100) pwrD -100; //used to limit to -90
+    */
 		chassisManualDrive(pwrD + pwrT, pwrD - pwrT);
 		lastError = errorD;
 		lastErrorT = errorT;

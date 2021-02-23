@@ -2,6 +2,7 @@
 #include "control/autoFunc.hpp"
 #include "control/autoRoutines.hpp"
 #include "control/driverControl.hpp"
+#include "control/tracking.hpp"
 #include "control/lcd.hpp"
 #include "partsHpp/chassis.hpp"
 #include "partsHpp/liftake.hpp"
@@ -14,14 +15,45 @@ using namespace pros;
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
-void initialize() {
-	//lcd::initialize();
 
+/**
+ *   ______________
+ *  |______________|
+ *  |______________|
+ *  |______________|
+ *  |______________|
+ *  |______________|
+ *  |__.________.__|
+ *[left_start] [right_start]
+ */
+
+double start[3];
+//true = right start
+void init_pos(bool flag){
+	if(flag){
+		start[1] = 24; //x (in)
+		start[2] = 9.5; //y (in)
+		//start[3] = ; //figure out starting heading (probably 90 deg)
+	}
+	else{
+		start[1] = 120; //x (in)
+		start[2] = 9.5; //y (in)
+		//start[3] = ; //figure out starting heading (probably 90 deg)
+	}
+}
+
+void initialize() {
 	//vision sensor monitoring task
 	//Task visionMonitor(vMonitor, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "visionMonitor");
 
 	//filters inertial sensor data
 	Task kalmanMonitor(filterHeading, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "kalmanMonitor");
+
+	//change based on start
+	init_pos(true);
+
+	//odometry
+	Task odometry(odom, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "odometry");
 }
 
 /**
@@ -55,7 +87,7 @@ void competition_initialize() {}
  */
 
 void autonomous() {
-	skills1();
+	matchAutonL();
 }
 
 /**

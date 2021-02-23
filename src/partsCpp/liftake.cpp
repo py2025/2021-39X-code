@@ -2,16 +2,16 @@
 #include "partsHpp/liftake.hpp"
 
 //intakes balls
-void intake(int power){
+void spin_intake(int power){
   leftIntake.move(power);
   rightIntake.move(-power);
 }
 
 //intake task
 void intakeT(void* param){
-  intake(127);
+  spin_intake(127);
   c::delay((int) param);
-  intake(0);
+  spin_intake(0);
 }
 
 //lifts balls

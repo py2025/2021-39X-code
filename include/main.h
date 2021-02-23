@@ -71,6 +71,7 @@ extern Controller mainController;
 
 //motor enc to ft/deg conversions
 #define SCONVERSION 1057.7682 //ticks per ft (previously 1301.8806)
+#define SCONVERSION_IN 88.1474 //ticks per in
 #define TCONVERSION 10.1303 //ticks per degree
 
 /**
@@ -94,6 +95,7 @@ void opcontrol(void);
 /**
  * You can add C++-only headers here
  */
+void init_pos(bool flag);
 //#include <iostream>
 #endif
 

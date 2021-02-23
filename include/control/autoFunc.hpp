@@ -5,6 +5,8 @@
 #include "control/visionTracking.hpp"
 #include "partsHpp/chassis.hpp"
 
+static double h;
+
 double getFt(double dist);
 
 double getDegs(double degs);

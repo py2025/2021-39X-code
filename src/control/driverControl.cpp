@@ -1,5 +1,6 @@
 #include "control/driverControl.hpp"
 #include "control/autoFunc.hpp"
+#include "control/autoRoutines.hpp"
 
 //Motors + Ports
 pros::Motor leftDrive(10);
@@ -55,9 +56,9 @@ void lifting(void*){
 	  BackRD = mainController.get_digital(DIGITAL_R2);
 		BackLU = mainController.get_digital(DIGITAL_L1);
 	  BackLD = mainController.get_digital(DIGITAL_L2);
-    if(BackRU) intake(-127);
-    else if(BackRD) intake(127);
-    else intake(0);
+    if(BackRU) spin_intake(-127);
+    else if(BackRD) spin_intake(127);
+    else spin_intake(0);
     if(BackLU) lift(-127);
     else if(BackLD) lift(127);
   	else lift(0);

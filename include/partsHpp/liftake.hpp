@@ -2,7 +2,7 @@
 #define _LIFTAKE_HPP_
 #include "main.h"
 
-void intake(int power);
+void spin_intake(int power);
 
 void intakeT(void* param);
 
