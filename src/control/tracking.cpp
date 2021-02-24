@@ -1,7 +1,6 @@
 #include "control/tracking.hpp"
 #include "control/autoFunc.hpp"
 #include "partsHpp/liftake.hpp"
-#include "main.h"
 
 #include <cmath>
 
@@ -26,6 +25,9 @@ double U_hat_e = 0.0; //estimated state
 
 //used to initialize starting odometry position
 double start[3];
+
+//current coordinate array
+double current_pos[2];
 
 double rightPos(){
   return rightDrive.get_position();
@@ -77,6 +79,9 @@ void odom(void*){
     y_pos += delta_y;
 
     h_last = h;
+
+    current_pos[0] = get_x();
+    current_pos[1] = get_y();
     c::delay(10);
   }
 }
@@ -127,4 +132,9 @@ double encoder_filter(double U){
   U_hat_e = U_hat_e + K_E * (U - H_E * U_hat_e);
   P_E = (1 - K_E * H_E) * P_E + Q_E;
   return U_hat_e;
+}
+
+//how can i tell which way to curve it?
+void curve_path(float pt1[2], float pt2[2]){
+
 }
