@@ -5,6 +5,8 @@
 
 float arclength(float pt1[], float pt2[], float pt3[]);
 
+float short_arclength(float pt1[], float pt2[], float pt3[]);
+
 void cramers_rule(float pt1[], float pt2[], float pt3[]);
 
 float det(float (&mat)[2][2]);
