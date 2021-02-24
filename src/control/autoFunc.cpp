@@ -41,10 +41,6 @@ double getDegs(double degs){
   return degs;
 }
 
-int getTime(){
-  return (int) pros::millis();
-}
-
 //tares motors
 void tare(){
 	leftDrive.tare_position();

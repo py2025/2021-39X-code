@@ -16,32 +16,6 @@ using namespace pros;
  * to keep execution time for this mode under a few seconds.
  */
 
-/**
- *   ______________
- *  |______________|
- *  |______________|
- *  |______________|
- *  |______________|
- *  |______________|
- *  |__.________.__|
- *[left_start] [right_start]
- */
-
-double start[3];
-//true = right start
-void init_pos(bool flag){
-	if(flag){
-		start[1] = 24; //x (in)
-		start[2] = 9.5; //y (in)
-		//start[3] = ; //figure out starting heading (probably 90 deg)
-	}
-	else{
-		start[1] = 120; //x (in)
-		start[2] = 9.5; //y (in)
-		//start[3] = ; //figure out starting heading (probably 90 deg)
-	}
-}
-
 void initialize() {
 	//vision sensor monitoring task
 	//Task visionMonitor(vMonitor, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "visionMonitor");

@@ -95,7 +95,6 @@ void opcontrol(void);
 /**
  * You can add C++-only headers here
  */
-void init_pos(bool flag);
 //#include <iostream>
 #endif
 
