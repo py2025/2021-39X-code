@@ -39,11 +39,11 @@ double start[3];
 double current_pos[2];
 
 double rightPos(){
-  return rightDrive.get_position();
+  return (rightDrive.get_position() + rightDrive1.get_position()) / 2;;
 }
 
 double leftPos(){
-  return leftDrive.get_position();
+  return -(leftDrive.get_position() + leftDrive1.get_position()) / 2;
 }
 
 /**
@@ -166,9 +166,12 @@ void curve_path(double pt1[2], double pt2[2]){
 
   double short_alength = short_arclength(current_pos, pt1, pt2);
   double long_alength = long_arclength(current_pos, pt1, pt2);
+
+  double bias = 0;
+
   while(true){
-    leftAvg = -leftDrive.get_position();
-    rightAvg = rightDrive.get_position();
+    leftAvg = -(leftDrive.get_position() + leftDrive1.get_position()) / 2;
+		rightAvg = (rightDrive.get_position() + rightDrive1.get_position()) / 2;
 
     errorL = ((pt1[1] > current_pos[1]) ? long_alength : short_alength) - (leftAvg / SCONVERSION_IN); //long_alength - (leftAvg / SCONVERSION_IN);
     _integralL += errorL;
@@ -178,6 +181,8 @@ void curve_path(double pt1[2], double pt2[2]){
     _integralR += errorR;
     _derivativeR = errorR - lastErrorR;
     pwrR = (KP_R * errorR) + (KI_R * _integralR) + (KD_R * _derivativeR);
+
+    (pt1[1] > current_pos[1]) ? ((pwrL > 127) ? (bias = 127 / pwrL) : bias = 1) : ((pwrR > 127) ? (bias = 127 / pwrR) : bias = 1);
 
     chassisManualDrive(pwrR, pwrL);
   	lastErrorR = errorR;

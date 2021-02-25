@@ -58,7 +58,9 @@
 //Global Motor Definitions
 //Defined with Ports in driverControl.hpp
 extern Motor leftDrive;
+extern Motor leftDrive1;
 extern Motor rightDrive;
+extern Motor rightDrive1;
 extern Motor liftMotor1;
 extern Motor liftMotor2;
 extern Motor leftIntake;

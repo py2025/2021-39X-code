@@ -208,8 +208,8 @@ void inertialDrive(double target){
 
 	tare();
 	while(true){
-		leftPos = -leftDrive.get_position();
-		rightPos = rightDrive.get_position();
+		leftPos = -(leftDrive.get_position() + leftDrive1.get_position()) / 2;
+		rightPos = (rightDrive.get_position() + rightDrive1.get_position()) / 2;
 		avg = (leftPos + rightPos) / 2;
 		errorD = getFt(target) - avg;
 		_integral += errorD;
