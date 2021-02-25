@@ -25,9 +25,6 @@ void initialize() {
 
 	//change based on start
 	init_pos(true);
-
-	//odometry
-	Task odometry(odom, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "odometry");
 }
 
 /**
@@ -61,6 +58,8 @@ void competition_initialize() {}
  */
 
 void autonomous() {
+	//odometry
+	Task odometry(odom, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "odometry");
 	matchAutonL();
 }
 
