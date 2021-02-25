@@ -3,18 +3,20 @@
 
 #include "main.h"
 
-float arclength(float pt1[], float pt2[], float pt3[]);
+double arclength(double pt1[], double pt2[], double pt3[]);
 
-float short_arclength(float pt1[], float pt2[], float pt3[]);
+double short_arclength(double pt1[], double pt2[], double pt3[]);
 
-void cramers_rule(float pt1[], float pt2[], float pt3[]);
+double long_arclength(double pt[], double pt2[], double pt3[]);
 
-float det(float (&mat)[2][2]);
+void cramers_rule(double pt1[], double pt2[], double pt3[]);
 
-float distance(float pt1[2], float pt2[2]);
+double det(double (&mat)[2][2]);
 
-float law_of_cos(float d, float r);
+double distance(double pt1[2], double pt2[2]);
 
-float det(float (&mat)[2][2]);
+double law_of_cos(double d, double r);
+
+double det(double (&mat)[2][2]);
 
 #endif

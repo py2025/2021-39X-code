@@ -19,4 +19,5 @@ void rotate_to(double x, double y);
 
 double encoder_filter(double U);
 
+void curve_path(double pt1[2], double pt2[2]);
 #endif

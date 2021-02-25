@@ -1,8 +1,17 @@
 #include "control/tracking.hpp"
 #include "control/autoFunc.hpp"
+#include "control/arcDrive.hpp"
 #include "partsHpp/liftake.hpp"
 
 #include <cmath>
+
+#define KP_L 0.9
+#define KI_L 0.0000005
+#define KD_L 0.016
+
+#define KP_R 0.9
+#define KI_R 0.0000005
+#define KD_R 0.016
 
 double x_pos;
 double y_pos;
@@ -66,7 +75,7 @@ void init_pos(bool flag){
 void odom(void*){
   x_pos = start[1];
   y_pos = start[2];
-  h_last = start[3];
+  h_last = h;
   while(true){
     avg = (rightPos() + leftPos()) / 2;
 
@@ -134,7 +143,50 @@ double encoder_filter(double U){
   return U_hat_e;
 }
 
-//how can i tell which way to curve it?
-void curve_path(float pt1[2], float pt2[2]){
+/*input two points, robot will strafe-drive with the first point as a stop and
+ *the second point as the end
+ */
+void curve_path(double pt1[2], double pt2[2]){
+  double leftAvg;
+  double rightAvg;
+  double left_dist;
+  double right_dist;
 
+  double lastErrorL = 0;
+  double errorL = 0;
+  double _integralL = 0;
+  double _derivativeL = 0;
+  double pwrL = 0;
+
+  double lastErrorR = 0;
+  double errorR = 0;
+  double _integralR = 0;
+  double _derivativeR = 0;
+  double pwrR = 0;
+
+  double short_alength = short_arclength(current_pos, pt1, pt2);
+  double long_alength = long_arclength(current_pos, pt1, pt2);
+  while(true){
+    leftAvg = -leftDrive.get_position();
+    rightAvg = rightDrive.get_position();
+
+    errorL = ((pt1[1] > current_pos[1]) ? long_alength : short_alength) - (leftAvg / SCONVERSION_IN); //long_alength - (leftAvg / SCONVERSION_IN);
+    _integralL += errorL;
+    _derivativeL = errorL - lastErrorL;
+    pwrL = (KP_L * errorL) + (KI_L * _integralL) + (KD_L * _derivativeL);
+    errorR = ((pt1[1] > current_pos[1]) ? short_alength : long_alength) - (rightAvg / SCONVERSION_IN); //short_alength - (rightAvg / SCONVERSION_IN);
+    _integralR += errorR;
+    _derivativeR = errorR - lastErrorR;
+    pwrR = (KP_R * errorR) + (KI_R * _integralR) + (KD_R * _derivativeR);
+
+    chassisManualDrive(pwrR, pwrL);
+  	lastErrorR = errorR;
+  	lastErrorL = errorL;
+  	if(abs(errorL) <= 0.05){
+  		chassisManualDrive(0, 0);
+  		brake();
+  		break;
+  	}
+  	c::delay(5);
+  }
 }
