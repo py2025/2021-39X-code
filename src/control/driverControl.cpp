@@ -4,7 +4,9 @@
 
 //Motors + Ports
 pros::Motor leftDrive(10);
+pros::Motor leftDrive1(7);
 pros::Motor rightDrive(1);
+pros::Motor rightDrive1(4);
 pros::Motor liftMotor1(9);
 pros::Motor liftMotor2(3);
 pros::Motor leftIntake(2);
