@@ -17,6 +17,7 @@ using namespace pros;
  */
 
 void initialize() {
+	brake();
 	//vision sensor monitoring task
 	//Task visionMonitor(vMonitor, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "visionMonitor");
 
@@ -24,7 +25,8 @@ void initialize() {
 	Task kalmanMonitor(filterHeading, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "kalmanMonitor");
 
 	//change based on start
-	init_pos(true);
+	//init_pos(true);
+	//test_init(96, 9.5);
 }
 
 /**
@@ -57,10 +59,14 @@ void competition_initialize() {}
  * from where it left off.
  */
 
+double pt1[2] = {22, 5.5};
+double pt2[2] = {35, 0};
 void autonomous() {
 	//odometry
-	Task odometry(odom, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "odometry");
-	matchAutonL();
+	//Task odometry(odom, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "odometry");
+	//c::delay(500);
+	skills1();
+	//while(true) tracking_debug();
 }
 
 /**
@@ -78,12 +84,11 @@ void autonomous() {
  */
 
 void opcontrol() {
-	liftMotor1.set_brake_mode(E_MOTOR_BRAKE_HOLD);
-	liftMotor2.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+	liftMotor1.set_brake_mode(E_MOTOR_BRAKE_COAST);
+	liftMotor2.set_brake_mode(E_MOTOR_BRAKE_COAST);
 	leftIntake.set_brake_mode(E_MOTOR_BRAKE_HOLD);
 	rightIntake.set_brake_mode(E_MOTOR_BRAKE_HOLD);
-	leftDrive.set_brake_mode(E_MOTOR_BRAKE_HOLD);
-	rightDrive.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+	brake();
 
   Task drive(manualChassis, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "drive");
   Task intake(lifting, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "intake");
