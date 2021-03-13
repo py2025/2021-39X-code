@@ -6,7 +6,8 @@
 #include <cmath>
 #include <iostream>
 
-#define WHEELBASE_WIDTH 10.94
+#define WHEELBASE_WIDTH 15
+//#define TWHEELBASE_WIDTH
 
 //center of circle that models arclength
 double center[2];

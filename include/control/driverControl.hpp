@@ -9,4 +9,4 @@ void manualChassis(void*);
 
 void lifting(void*);
 
-#endif /* end of include guard:  */
+#endif

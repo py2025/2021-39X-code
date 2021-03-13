@@ -56,7 +56,7 @@
 
 
 //Global Motor Definitions
-//Defined with Ports in driverControl.hpp
+//Defined with Ports in driverControl.cpp
 extern Motor leftDrive;
 extern Motor leftDrive1;
 extern Motor rightDrive;
@@ -72,9 +72,9 @@ extern Imu inertial;
 extern Controller mainController;
 
 //motor enc to ft/deg conversions
-#define SCONVERSION 1057.7682 //ticks per ft (previously 1301.8806)
-#define SCONVERSION_IN 88.1474 //ticks per in
-#define TCONVERSION 10.1303 //ticks per degree
+#define SCONVERSION 634.66092 //ticks per ft (previously 1301.8806)
+#define SCONVERSION_IN 52.88841 //ticks per in
+#define TCONVERSION 6.7535 //ticks per degree
 
 /**
  * Prototypes for the competition control tasks are redefined here to ensure
