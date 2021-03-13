@@ -3,18 +3,15 @@
 #include "partsHpp/chassis.hpp"
 #include "partsHpp/liftake.hpp"
 
-//PID gains for InertialTurn
-#define K_D 0.04
-
 //PID gains for InertialDrive (driving)
-#define K_P1 0.9
-#define K_I1 0.0000005
-#define K_D1 0.016
+#define K_P1 0.7
+#define K_I1 0.0000001
+#define K_D1 5
 
 //Also PID gains for InertialDrive (turning)
-#define K_P2 2
+#define K_P2 3.5
 #define K_I2 0.002
-#define K_D2 0
+#define K_D2 0.01
 
 //Kalman constants
 #define R 40.0 //noise covariance
@@ -24,10 +21,18 @@ double K = 0.0; //kalman gain
 double Q = 1.0; //estimated covariances
 double U_hat = 0.0; //estimated state
 
-//continued inertialTurn gains
-static float K_P = 0.8;
-static float K_I = 0.0013;
-static float tBias = 0.25;
+//inertialTurn gains
+static float K_P = 0.75;
+static float K_I = 0.0015;
+static float K_D = 0.01;
+static float tBias = 0.05;
+
+int start_time;
+
+//used for PID killswitch
+int get_current_time(){
+  return pros::millis();
+}
 
 //converts desired distance to encoder units
 double getFt(double dist){
@@ -44,13 +49,24 @@ double getDegs(double degs){
 //tares motors
 void tare(){
 	leftDrive.tare_position();
+  leftDrive1.tare_position();
 	rightDrive.tare_position();
+  rightDrive1.tare_position();
 }
 
 //brakes motors
 void brake(){
 	leftDrive.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+  leftDrive1.set_brake_mode(E_MOTOR_BRAKE_HOLD);
 	rightDrive.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+  rightDrive1.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+}
+
+void brake_brake(){
+	leftDrive.set_brake_mode(E_MOTOR_BRAKE_BRAKE);
+  leftDrive1.set_brake_mode(E_MOTOR_BRAKE_BRAKE);
+	rightDrive.set_brake_mode(E_MOTOR_BRAKE_BRAKE);
+  rightDrive1.set_brake_mode(E_MOTOR_BRAKE_BRAKE);
 }
 
 /*
@@ -79,6 +95,13 @@ void spinIntakes(int time){
   spin_intake(0);
 }
 
+//outtake (time based)
+void out_take(int time){
+  spin_intake(-127);
+  c::delay(time);
+  spin_intake(0);
+}
+
 //spin lift (time based)
 void spinLift(int time){
   lift(127);
@@ -95,21 +118,25 @@ void liftDown(int time){
 
 //drive (time based)
 void driveTime(int time, int pwr){
-  chassisManualDrive(pwr * 0.98, pwr);
+  chassisManualDrive(pwr, pwr);
   c::delay(time);
   chassisManualDrive(0, 0);
 }
 
 //Gets filtered heading from inertial sensor input and kalman filter
 void filterHeading(void*){
-	//initialize then reset imu
+	//initialize then tare imu
 	pros::Imu inertial(4);
 	inertial.reset();
-	c::delay(2500);
+  c::delay(2500);
   while(true){
     	h = calcKalman(inertial.get_rotation());
 			c::delay(5);
   }
+}
+
+double get_h(){
+  return h;
 }
 
 //Kalman calculations
@@ -132,41 +159,68 @@ void inertialTurn(double target){
 	double iOut = 0;
 	double dOut = 0;
 	double pwr = 0;
+  start_time = get_current_time();
 
-	if(abs(target) < 90 && abs(target) > 45){
-		K_P = 1.38;
-		K_I = 0.0025;
-		tBias = 0.25;
+
+	if(target < 90 && target > 45){
+    K_P = 0.5;
+		K_I = 0.003;
+    K_D = 0.025;
+		tBias = 0.1;
 	}
-  else if(abs(target) == 45){
-    K_P = 1.41;
-    K_I = 0.0026;
-    tBias = 0.25;
+
+	if(target > -90 && target < -45){
+    K_P = 1.5;
+		K_I = 0.0023;
+    K_D = 0.5;
+		tBias = 0.1;
+	}
+
+  else if(target > 0 && target < 45){
+    K_P = 0.7;
+		K_I = 0.005;
+    K_D = 0.025;
+		tBias = 0.1;
   }
-	else if(abs(target) < 45){
-		K_P = 1.42;
-		K_I = 0.00255;
-		tBias = 1.0;
+
+  else if(target == 45){
+    K_P = 1.5;
+		K_I = 0.0023;
+    K_D = 0.5;
+		tBias = 0.1;
+  }
+
+	else if(target == -45){
+    K_P = 1.5;
+		K_I = 0.0023;
+    K_D = 0.5;
+		tBias = 0.1;
 	}
+
+  //done
 	else if(target == 90){
-		K_P = 0.90;
-		K_I = 0.00143;
-		tBias = 1.0;
+    K_P = 1.03;
+    K_I = 0.00132;
+    K_D = 0.63;
+		tBias = 0.10;
 	}
-  else if(target < 0 && target >= -45){
-    K_P = 0.85;
-    K_I = 0.00134;
-    tBias = 0.50;
+
+  else if(target < 0 && target > -45){
+    K_P = 1.1;
+		K_I = 0.005;
+    K_D = 0.025;
+		tBias = 0.1;
   }
+
   else if(target == -90){
-    K_P = 0.88;
-		K_I = 0.00139;
-		tBias = 1.0;
+    K_P = 1.033;
+    K_I = 0.00136;
+    K_D = 0.6;
+		tBias = 0.10;
   }
 
   while(true){
 	  error = target + h0 - h;
-		std::cout << error << std::endl;
     _integral += error;
     _derivative = error - lastError;
     pOut = K_P * error;
@@ -174,11 +228,13 @@ void inertialTurn(double target){
     dOut = K_D * _derivative;
     pwr = pOut + iOut + dOut;
 		//slow turn = fun
-		if(pwr > 100) pwr = 100; //previously 68
-		else if(pwr < -100) pwr = -100; //previously -68
-    chassisManualDrive(pwr, -pwr);
+    /*
+		if(pwr > 90) pwr = 90; //previously 68
+		else if(pwr < -90) pwr = -90; //previously -68
+    */
+    chassisManualDrive(-pwr, pwr);
     lastError = error;
-    if(abs(error) <= tBias){
+    if(abs(error) <= tBias || get_current_time() - start_time >= 1500){
       chassisManualDrive(0, 0);
 			brake();
       break;
@@ -208,8 +264,8 @@ void inertialDrive(double target){
 
 	tare();
 	while(true){
-		leftPos = -(leftDrive.get_position() + leftDrive1.get_position()) / 2;
-		rightPos = (rightDrive.get_position() + rightDrive1.get_position()) / 2;
+		leftPos = (-leftDrive.get_position() + leftDrive1.get_position()) / 2;
+		rightPos = (-rightDrive.get_position() + rightDrive1.get_position()) / 2;
 		avg = (leftPos + rightPos) / 2;
 		errorD = getFt(target) - avg;
 		_integral += errorD;
@@ -220,20 +276,22 @@ void inertialDrive(double target){
 		_tIntegral += errorT;
 		_tDerivative = errorT - lastErrorT;
 		pwrT = (K_P2 * errorT) + (K_I2 * _tIntegral) + (K_D2 * _tDerivative);
+
 		//drive power is limited to allow turn power to have an effect
+    /*
 		if(pwrD > (127 - abs(pwrT))) pwrD = 127 - abs(pwrT);
 		else if(pwrD < (-127 + abs(pwrT))) pwrD = -127 + abs(pwrT);
-    //if above conditional doesn't work,
-    /*
-    if(pwrD > 100) pwrD = 100; //used to limit to 90
-    else if(pwrD < -100) pwrD -100; //used to limit to -90
     */
-		chassisManualDrive(pwrD + pwrT, pwrD - pwrT);
+
+    //if above conditional doesn't work,
+    if(pwrD > 90) pwrD = 90; //used to limit to 90
+    else if(pwrD < -90) pwrD -90; //used to limit to -90
+		chassisManualDrive(pwrD - pwrT, pwrD + pwrT);
 		lastError = errorD;
 		lastErrorT = errorT;
 		if(abs(errorD) <= 10){
 			chassisManualDrive(0, 0);
-			brake();
+      brake();
 			break;
 		}
 		c::delay(5);

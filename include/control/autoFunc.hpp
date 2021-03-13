@@ -6,6 +6,10 @@
 #include "partsHpp/chassis.hpp"
 
 static double h;
+static double gyro_x;
+static double gyro_y;
+
+int get_current_time();
 
 double getFt(double dist);
 
@@ -15,6 +19,8 @@ void tare();
 
 void brake();
 
+void brake_brake();
+
 //void chaseBall();
 
 void tareChassis();
@@ -23,6 +29,8 @@ void collectBall();
 
 void spinLift(int time);
 
+void out_take(int time);
+
 void liftDown(int time);
 
 void spinIntakes(int time);
@@ -30,6 +38,8 @@ void spinIntakes(int time);
 void driveTime(int time, int pwr);
 
 void filterHeading(void*);
+
+double get_h();
 
 double calcKalman(double U);
 

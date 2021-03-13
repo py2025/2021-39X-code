@@ -5,8 +5,8 @@
 //Motors + Ports
 pros::Motor leftDrive(10);
 pros::Motor leftDrive1(7);
-pros::Motor rightDrive(1);
-pros::Motor rightDrive1(4);
+pros::Motor rightDrive(6);
+pros::Motor rightDrive1(5);
 pros::Motor liftMotor1(9);
 pros::Motor liftMotor2(3);
 pros::Motor leftIntake(2);
@@ -19,29 +19,29 @@ int BackRU;
 int BackRD;
 int BackLU;
 int BackLD;
-int x;
-int y;
+int drive_x;
+int drive_y;
 int a;
 
 //main drive task
 void manualChassis(void*){
   while(true){
     c::delay(5);
-		leftY = (int) mainController.get_analog(ANALOG_RIGHT_Y);
-    rightY = (int) mainController.get_analog(ANALOG_LEFT_Y);
-    x = mainController.get_digital(DIGITAL_X);
-    y = mainController.get_digital(DIGITAL_Y);
+		leftY = (int) mainController.get_analog(ANALOG_LEFT_Y);
+    rightY = (int) mainController.get_analog(ANALOG_RIGHT_Y);
+    drive_x = mainController.get_digital(DIGITAL_X);
+    drive_y = mainController.get_digital(DIGITAL_Y);
     a = mainController.get_digital(DIGITAL_A);
     chassisManualDrive(rightY, leftY);
     //center descore
-    if(x){
+    if(drive_x){
       chassisManualDrive(127, 127);
       c::delay(500);
       chassisManualDrive(-100, -127);
       c::delay(500);
       chassisManualDrive(0, 0);
     }
-    if(y) startLeft();
+    if(drive_y) startLeft();
     if(a){
       chassisManualDrive(127, 127);
       c::delay(500);
