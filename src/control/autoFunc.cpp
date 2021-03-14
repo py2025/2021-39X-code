@@ -170,16 +170,16 @@ void inertialTurn(double target){
 	}
 
 	if(target > -90 && target < -45){
-    K_P = 1.5;
-		K_I = 0.0023;
-    K_D = 0.5;
+    K_P = 1.2;
+		K_I = 0.0015;
+    K_D = 0.55;
 		tBias = 0.1;
 	}
 
   else if(target > 0 && target < 45){
-    K_P = 0.7;
-		K_I = 0.005;
-    K_D = 0.025;
+    K_P = 2;
+		K_I = 0.003;
+    K_D = 0.07;
 		tBias = 0.1;
   }
 
@@ -199,23 +199,23 @@ void inertialTurn(double target){
 
   //done
 	else if(target == 90){
-    K_P = 1.03;
-    K_I = 0.00132;
-    K_D = 0.63;
+    K_P = 1.0;
+    K_I = 0.0012;
+    K_D = 0.8;
 		tBias = 0.10;
 	}
 
   else if(target < 0 && target > -45){
-    K_P = 1.1;
-		K_I = 0.005;
-    K_D = 0.025;
+    K_P = 2.2;
+		K_I = 0.003;
+    K_D = 0.07;
 		tBias = 0.1;
   }
 
   else if(target == -90){
-    K_P = 1.033;
-    K_I = 0.00136;
-    K_D = 0.6;
+    K_P = 1.03;
+    K_I = 0.0013;
+    K_D = 0.7;
 		tBias = 0.10;
   }
 
@@ -234,7 +234,7 @@ void inertialTurn(double target){
     */
     chassisManualDrive(-pwr, pwr);
     lastError = error;
-    if(abs(error) <= tBias || get_current_time() - start_time >= 1500){
+    if(abs(error) <= tBias || get_current_time() - start_time >= 1000){
       chassisManualDrive(0, 0);
 			brake();
       break;
@@ -264,8 +264,8 @@ void inertialDrive(double target){
 
 	tare();
 	while(true){
-		leftPos = (-leftDrive.get_position() + leftDrive1.get_position()) / 2;
-		rightPos = (-rightDrive.get_position() + rightDrive1.get_position()) / 2;
+		leftPos = (-leftDrive.get_position() - leftDrive1.get_position()) / 2;
+		rightPos = (rightDrive.get_position() + rightDrive1.get_position()) / 2;
 		avg = (leftPos + rightPos) / 2;
 		errorD = getFt(target) - avg;
 		_integral += errorD;
