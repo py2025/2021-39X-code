@@ -256,8 +256,8 @@ void curve_path(double pt1[2], double pt2[2], bool intake){
   tare();
   //rotate to tangent heading to curve then delay 200;
   while(true){
-    leftAvg = (-leftDrive.get_position() + leftDrive1.get_position() / 2);
-    rightAvg = (-rightDrive.get_position() + rightDrive1.get_position()) / 2;
+    leftAvg = (-leftDrive.get_position() + -leftDrive1.get_position() / 2);
+    rightAvg = (rightDrive.get_position() + rightDrive1.get_position()) / 2;
 
     errorL = ((pt1[1] > 0) ? long_alength : short_alength) - (leftAvg / SCONVERSION_IN); //long_alength - (leftAvg / SCONVERSION_IN);
     _integralL += errorL;
