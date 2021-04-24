@@ -41,7 +41,6 @@ void manualChassis(void*){
       c::delay(500);
       chassisManualDrive(0, 0);
     }
-    if(drive_y) startLeft();
     if(a){
       chassisManualDrive(127, 127);
       c::delay(500);

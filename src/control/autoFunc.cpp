@@ -11,7 +11,7 @@
 //Also PID gains for InertialDrive (turning)
 #define K_P2 3.5
 #define K_I2 0.002
-#define K_D2 0.01
+#define K_D2 0.3
 
 //Kalman constants
 #define R 40.0 //noise covariance
@@ -154,90 +154,94 @@ void inertialTurn(double target){
 	double error = 0;
 	double _integral = 0;
 	double _derivative = 0;
-  double h0 = h;
+  	double h0 = h;
 	double pOut = 0;
 	double iOut = 0;
 	double dOut = 0;
 	double pwr = 0;
-  start_time = get_current_time();
+  	start_time = get_current_time();
 
 
 	if(target < 90 && target > 45){
-    K_P = 0.5;
+    	K_P = 0.5;
 		K_I = 0.003;
-    K_D = 0.025;
+    	K_D = 0.025;
 		tBias = 0.1;
 	}
 
 	if(target > -90 && target < -45){
-    K_P = 1.2;
+    	K_P = 1.2;
 		K_I = 0.0015;
-    K_D = 0.55;
+    	K_D = 0.55;
 		tBias = 0.1;
 	}
 
-  else if(target > 0 && target < 45){
-    K_P = 2;
+  	else if(target > 0 && target < 45){
+    	K_P = 2;
 		K_I = 0.003;
-    K_D = 0.07;
+    	K_D = 0.07;
 		tBias = 0.1;
-  }
+  	}
 
-  else if(target == 45){
-    K_P = 1.5;
-		K_I = 0.0023;
-    K_D = 0.5;
+	//done
+  	else if(target == 45){
+   	 	K_P = 1.7;
+		K_I = 0.0013;
+    	K_D = 0.55;
 		tBias = 0.1;
-  }
+  	}
 
+	//done
 	else if(target == -45){
-    K_P = 1.5;
-		K_I = 0.0023;
-    K_D = 0.5;
+   	 	K_P = 1.715;
+		K_I = 0.0013;
+    	K_D = 0.55;
 		tBias = 0.1;
 	}
 
-  //done
+	//done
 	else if(target == 90){
-    K_P = 1.0;
-    K_I = 0.0012;
-    K_D = 0.8;
+    	K_P = 1.054;
+    	K_I = 0.0013;
+    	K_D = 1.15;
 		tBias = 0.10;
 	}
 
-  else if(target < 0 && target > -45){
-    K_P = 2.2;
-		K_I = 0.003;
-    K_D = 0.07;
+  	else if(target < 0 && target > -45){
+   	 	K_P = 1.1;
+		K_I = 0.0011;
+    	K_D = 0.8;
 		tBias = 0.1;
-  }
-
-  else if(target == -90){
-    K_P = 1.03;
-    K_I = 0.0013;
-    K_D = 0.7;
+  	}
+	
+	//done
+  	else if(target == -90){
+    	K_P = 1.0945;
+    	K_I = 0.0013;
+    	K_D = 1.37;
 		tBias = 0.10;
-  }
+  	}
 
-  while(true){
-	  error = target + h0 - h;
-    _integral += error;
-    _derivative = error - lastError;
-    pOut = K_P * error;
-    iOut = K_I * _integral;
-    dOut = K_D * _derivative;
-    pwr = pOut + iOut + dOut;
+  	while(true){
+		std::cout << "filtered imu reading: " << get_h() << std::endl;
+	  	error = target + h0 - h;
+    	_integral += error;
+   		_derivative = error - lastError;
+    	pOut = K_P * error;
+    	iOut = K_I * _integral;
+    	dOut = K_D * _derivative;
+    	pwr = pOut + iOut + dOut;
 		//slow turn = fun
-    /*
+    	/*
 		if(pwr > 90) pwr = 90; //previously 68
 		else if(pwr < -90) pwr = -90; //previously -68
-    */
-    chassisManualDrive(-pwr, pwr);
-    lastError = error;
-    if(abs(error) <= tBias || get_current_time() - start_time >= 1000){
-      chassisManualDrive(0, 0);
-			brake();
-      break;
+    	*/
+    	chassisManualDrive(-pwr, pwr);
+    	lastError = error;
+    	if(abs(error) <= tBias || get_current_time() - start_time >= 100000000){
+      		chassisManualDrive(0, 0);
+		brake();
+      	break;
     }
     c::delay(5);
   }

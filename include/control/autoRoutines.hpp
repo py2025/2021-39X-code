@@ -15,4 +15,6 @@ void matchAutonR();
 
 void oneBallR();
 
+void matchAuto();
+
 #endif

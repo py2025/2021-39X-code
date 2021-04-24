@@ -1,7 +1,9 @@
 #ifndef _ARCDRIVE_HPP_
 #define _ARCDRIVE_HPP_
 
-#include "main.h"
+#include "main.h" 
+
+double *get_arr(double x, double y);
 
 double arclength(double pt1[], double pt2[], double pt3[]);
 

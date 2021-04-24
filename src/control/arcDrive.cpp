@@ -5,6 +5,7 @@
 #include "arcDrive.hpp"
 #include <cmath>
 #include <iostream>
+#include <stdlib.h>
 
 #define WHEELBASE_WIDTH 15
 //#define TWHEELBASE_WIDTH
@@ -12,12 +13,18 @@
 //center of circle that models arclength
 double center[2];
 
+double *get_arr(double x, double y){
+    double pt[2] = {x, y};
+    return pt;
+}
+
 //calculates arclength from three coordinate points
 double arclength(double pt1[], double pt2[], double pt3[]){
     cramers_rule(pt1, pt2, pt3);
     double r = distance(center, pt1);
     double d = distance(pt1, pt3);
     double theta = law_of_cos(d, r);
+    if((r * theta) < 0) exit;
     return r * theta;
 }
 
@@ -27,6 +34,7 @@ double short_arclength(double pt1[], double pt2[], double pt3[]){
     double r = distance(center, pt1) - (WHEELBASE_WIDTH / 2);
     double d = distance(pt1, pt3);
     double theta = law_of_cos(d, r);
+    if((r - (WHEELBASE_WIDTH / 2) * theta) < 0) exit;
     return (r - (WHEELBASE_WIDTH / 2)) * theta;
 }
 
@@ -35,6 +43,7 @@ double long_arclength(double pt1[], double pt2[], double pt3[]){
     double r = distance(center, pt1) + (WHEELBASE_WIDTH / 2);
     double d = distance(pt1, pt3);
     double theta = law_of_cos(d, r);
+    if((r + (WHEELBASE_WIDTH / 2) * theta) < 0) exit;
     return (r + (WHEELBASE_WIDTH / 2)) * theta;
 }
 
