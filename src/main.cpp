@@ -62,10 +62,11 @@ void competition_initialize() {}
 double pt1[2] = {22, 5.5};
 double pt2[2] = {35, 0};
 void autonomous() {
+	matchAuto();
 	//odometry
 	//Task odometry(odom, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "odometry");
 	//c::delay(500);
-	skills1();
+	//skills1();
 	//while(true) tracking_debug();
 }
 

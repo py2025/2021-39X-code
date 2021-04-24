@@ -4,7 +4,7 @@
 #define GOAL 2
 
 //needs to be tuned
-#define TURN_P 0.7 //0.7
+#define TURN_P 0.7
 
 float finalpwr;
 
