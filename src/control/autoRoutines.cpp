@@ -208,10 +208,22 @@ void matchAuto(){
 	inertialDrive(2.55);
 	c::delay(300);
 	inertialTurn(-90);
-	Task intake(intakeT, (void*) 6000, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT);
-	inertialDrive(1.4);
+	Task intake(intakeT, (void*)2000, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT);
+	inertialDrive(1.5);
 	driveTime(500, 80);
-	spinLift(1500);
-	c::delay(3000);
-	spinLift(750);
+	spinLift(1000);
+	out_take(400);
+	inertialDrive(-1.75);
+	c::delay(300);
+	inertialTurn(45);
+	c:delay(300);
+	inertialDrive(1.25);
+	driveTime(500, 90);
+	c::delay(300);
+	inertialDrive(-9.25);
+	c::delay(300);
+	inertialTurn(45);
+	c::delay(300);
+	driveTime(750, -127);
+	inertialDrive(1.5);
 }

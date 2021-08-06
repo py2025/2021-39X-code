@@ -9,9 +9,9 @@
 #define K_D1 5
 
 //Also PID gains for InertialDrive (turning)
-#define K_P2 3.5
-#define K_I2 0.002
-#define K_D2 0.3
+static float K_P2 = 3.5;
+static float K_I2 = 0.002;
+static float K_D2 = 0.3;
 
 //Kalman constants
 #define R 40.0 //noise covariance
@@ -154,12 +154,12 @@ void inertialTurn(double target){
 	double error = 0;
 	double _integral = 0;
 	double _derivative = 0;
-  	double h0 = h;
+  double h0 = h;
 	double pOut = 0;
 	double iOut = 0;
 	double dOut = 0;
 	double pwr = 0;
-  	start_time = get_current_time();
+  start_time = get_current_time();
 
 
 	if(target < 90 && target > 45){
@@ -177,24 +177,24 @@ void inertialTurn(double target){
 	}
 
   	else if(target > 0 && target < 45){
-    	K_P = 2;
-		K_I = 0.003;
-    	K_D = 0.07;
+   	 	K_P = 1.65;
+		  K_I = 0.00123;
+    	K_D = 0.65;
 		tBias = 0.1;
   	}
 
 	//done
   	else if(target == 45){
-   	 	K_P = 1.7;
-		K_I = 0.0013;
-    	K_D = 0.55;
+   	 	K_P = 1.6;
+		  K_I = 0.00123;
+    	K_D = 0.65;
 		tBias = 0.1;
   	}
 
 	//done
 	else if(target == -45){
    	 	K_P = 1.715;
-		K_I = 0.0013;
+		  K_I = 0.0013;
     	K_D = 0.55;
 		tBias = 0.1;
 	}
@@ -213,11 +213,11 @@ void inertialTurn(double target){
     	K_D = 0.8;
 		tBias = 0.1;
   	}
-	
+
 	//done
   	else if(target == -90){
-    	K_P = 1.0945;
-    	K_I = 0.0013;
+    	K_P = 1.097;
+    	K_I = 0.00133;
     	K_D = 1.37;
 		tBias = 0.10;
   	}
@@ -238,7 +238,7 @@ void inertialTurn(double target){
     	*/
     	chassisManualDrive(-pwr, pwr);
     	lastError = error;
-    	if(abs(error) <= tBias || get_current_time() - start_time >= 100000000){
+    	if(abs(error) <= tBias || get_current_time() - start_time >= 1500){
       		chassisManualDrive(0, 0);
 		brake();
       	break;
@@ -267,6 +267,7 @@ void inertialDrive(double target){
 	double lastErrorT = 0;
 
 	tare();
+
 	while(true){
 		leftPos = (-leftDrive.get_position() - leftDrive1.get_position()) / 2;
 		rightPos = (rightDrive.get_position() + rightDrive1.get_position()) / 2;
@@ -289,7 +290,7 @@ void inertialDrive(double target){
 
     //if above conditional doesn't work,
     if(pwrD > 90) pwrD = 90; //used to limit to 90
-    else if(pwrD < -90) pwrD -90; //used to limit to -90
+    else if(pwrD < -90) pwrD = -90; //used to limit to -90
 		chassisManualDrive(pwrD - pwrT, pwrD + pwrT);
 		lastError = errorD;
 		lastErrorT = errorT;
